@@ -10,8 +10,55 @@ header, main, footer {
     }
 
 .brand-logo {
-  font-family: 'Megrim', serif;;
+  font-family: 'Megrim', serif;
+  font-weight: bolder;
+
 }
+
+#masterControls {
+
+  margin: 50px;
+  padding: 10px;
+  position: fixed;
+
+
+}
+
+
+
+
+
+
+#volumeTitle {
+  font-family: 'Nova Square', serif;
+  text-align: center;
+
+}
+
+
+
+#displaydB {
+
+  text-align: center;
+  position: relative;
+  font-family: 'Nova Square', serif;
+
+
+}
+
+#masterVolumeSlider .ui-slider-input {
+  display: none;
+  overflow: hidden;
+
+}
+
+.center-btn {
+  text-align: center;
+}
+
+
+
+
 
 body {
   display: flex;
