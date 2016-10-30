@@ -48,28 +48,117 @@
 
       <div class="parallax-container">
         <div class="parallax"><img src="images/Grid05.jpg"></div>
+
+          <!--
+            Master Control Volume and Mute
+          -->
           <div class="row">
-            <div id="masterControls" class="container col s3 m2">
+            <div id="masterControls" class="container col s2 m2">
 
               <ul class="collection with-header">
-                <li id="volumeTitle" class="collection-header teal darken-3
-"><h3>Master Volume</h3></li>
-                <li id="displaydB" class="collection-item teal lighten-3">
+                <li id="volumeTitle" class="collection-header blue-grey"><h3>Master Volume</h3></li>
+                <li id="displaydB" class="collection-item blue-grey lighten-3">
                   <h3 id="volumeDisplay"></h3>
                 </li>
-                <li id="masterVolumeSlider" class="collection-item teal darken-3
-">
+                <li id="masterVolumeSlider" class="collection-item blue-grey"></li>
+                <li class="collection-item blue-grey lighten-3">
 
+                    <a id="muteButton" class="lighten-4 btn-flat orange accent-4"><h6>MUTE</h6></a>
 
-</li>
-                <li  class="collection-item teal lighten-3">
-                  <div class="center-btn">
-                    <a id="muteButton" class="waves-effect waves-light btn-large teal darken-5"><h5 class="panicButton">MUTE</h5></a>
-                  </div>
                 </li>
               </ul>
             </div>
+
+            <!--
+              Master Control Volume and Mute
+            -->
+
+            <!--
+              Globals Display
+            -->
+
+            <div id="globals" class="container col s2 push-s9">
+              <ul class="collection with-header">
+                <li id="GlobalTitle" class="collection-header blue-grey"><h5>Globals:</h5></li>
+                <li class="collection-item blue-grey lighten-3"><h6 id="pitchSpaceDisplay"></h6></li>
+                <li class="collection-item blue-grey"><h6 id="oneOverOneDisplay"></h6></li>
+                <li class="collection-item blue-grey lighten-3"><h6 id="numberDimensionsDisplayedHere"></h6></li>
+                <li class="collection-item blue-grey"><h6 id="keyDisplayCell"></h6></li>
+
+              </ul>
+            </div>
+
+            <!--
+              Globals Display
+            -->
+
+            <!--
+              Edit panel. Hidden when no nodes are active/focused.
+            -->
+
+            <div id="editPanel" class="container col s3 push-s8">
+              <ul class="collection with-header">
+                <li id="currentNodeDisplay" class="collection-header blue-grey">
+                  <h6>Current Node:</h6>
+                  <div class="fixed-action-btn">
+                    <a class="btn-floating btn-small teal darken-2">
+                      <i class="large material-icons">reorder</i>
+                    </a>
+                    <ul>
+                      <li><a class="btn-floating teal lighten-1"><i class="material-icons">add</i></a></li>
+                      <li><a class="btn-floating teal lighten-2"><i class="material-icons">remove</i></a></li>
+                    </ul>
+                  </div>
+                </li>
+                <li id="nodeVolume" class="collection-item blue-grey lighten-3"></li>
+                <li id="LFOenable" class="collection-item blue-grey">
+                  <h6>LFO:
+                  <a class="btn-floating btn-small waves-effect waves-light grey"><i class="material-icons">power_settings_new</i></a>
+                  <a class="btn-floating btn-small waves-effect waves-light grey"><i class="material-icons">power_settings_new</i></a>
+                  <a class="btn-floating btn-small waves-effect waves-light grey"><i class="material-icons">power_settings_new</i></a>
+                  <a class="btn-floating btn-small waves-effect waves-light grey"><i class="material-icons">power_settings_new</i></a>
+                  <a class="btn-floating btn-small waves-effect waves-light grey"><i class="material-icons">power_settings_new</i></a>
+                  <a class="btn-floating btn-small waves-effect waves-light grey"><i class="material-icons">power_settings_new</i></a>
+                </h6>
+
+
+                </li>
+                <li id="waveformSelect" class="collection-item blue-grey lighten-3 center">
+
+                  <a class="dropdown-button btn teal" href="#" data-activates="dropdown1" >Waveform</a>
+                  <ul id="dropdown1" class="dropdown-content">
+                    <li><a href="#!">sine</a></li>
+                    <li><a href="#!">square</a></li>
+                    <li><a href="#!">triangle</a></li>
+
+                    <li><a href="#!">sawtooth</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+
           </div>
+
+
+          <!--
+            Node canvas
+          -->
+          <div class="row valign-wrapper">
+
+            <div id="nodeCanvas" class="container col s8 push-s1">
+
+              <div class="valign">
+                <a class="btn-floating btn-large waves-effect waves-light grey z-depth-2"><i id="origin" class="material-icons">music_note</i></a>
+
+              </div>
+
+
+            </div>
+
+
+          </div>
+
       </div>
 
       <footer class="page-footer teal lighten-1">
