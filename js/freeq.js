@@ -99,6 +99,7 @@ var primeFactors = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
 var oneOverOne = {};
 var activeNode = null;
 var droneContent = [];
+var currentNodeObject = {};
 
 
 
@@ -119,6 +120,9 @@ masterGainNode.gain.value = 0.01;
 
 //Initialize Node Volume fader
 var nodeVolumeSlider = $('#nodeVolume').append('<input type="range" min="1" max ="100" value="1" id="thisIsNodeVolumeSlider" display="none" >');
+
+//Initialize Node Pan Slider
+var nodePanSlider = $('#panSlider').append('<input type="range" min="1" max="100" value="50" id="thisIsNodePanSlider">');
 
 function getNextInput () {
   ++inputIndex;
@@ -510,6 +514,72 @@ function initNewGain () {
   return (newGain);
 }
 
+function initDroneObject (oscNode, panNode, gainNode, coordString) {
+  var returnObject = {};
+
+  returnObject.hertz = oscNode.frequency.value;
+  returnObject.osc = oscNode;
+  returnObject.pan = panNode;
+  returnObject.gain = gainNode;
+  returnObject.coordinates = convertLocationStringToArray(coordString);
+  returnObject.active = true;
+  returnObject.gainvalue = gainNode.gain.value;
+  returnObject.panvalue = panNode.pan.value;
+  returnObject.waveform = oscNode.type.value;
+  returnObject.lfoStates = [ false, false, false, false, false, false ];
+  returnObject.intervallicEquivalenceDisplacement = 0;
+
+  return returnObject;
+
+}
+
+function getFrequencyRatioStringFromArray (locationArray) {
+  var returnString = '';
+  var newObj = {};
+  newObj.numerator = 1;
+  newObj.denominator = 1;
+  newObj.exponentNumerator = 1;
+  newObj.exponentDenominator = 1;
+
+  for (let i = 0; i < locationArray.length; i++){
+    if (locationArray[i] !== 0) {
+      if (locationArray[i] > 0) {
+        newObj.numerator = newObj.numerator * (Math.pow(getKeyValue(dimensionKey[i]), locationArray[i]));
+      } else {
+        newObj.denominator = newObj.denominator * (Math.pow(getKeyValue(dimensionKey[i]), (Math.abs(locationArray[i]))));
+      }
+    }
+  }
+  if ((newObj.numerator / newObj.denominator) > getKeyValue(pitchSpace)) {
+    do {
+      newObj.denominator = newObj.denominator * getKeyValue(pitchSpace);
+    } while ((newObj.numerator / newObj.denominator) > getKeyValue(pitchSpace));
+  } else if ((newObj.numerator / newObj.denominator) < 1) {
+    do {
+      newObj.numerator = newObj.numerator * getKeyValue(pitchSpace);
+    } while ((newObj.numerator / newObj.denominator) < 1);
+  }
+
+  for (let i = 0; i < primeFactors.length; i++) {
+    if ((newObj.numerator % primeFactors[i] === 0) && (newObj.denominator % primeFactors[i] === 0)) {
+      do {
+        newObj.numerator = newObj.numerator / primeFactors[i];
+        newObj.denominator = newObj.denominator / primeFactors[i];
+      } while ((newObj.numerator % primeFactors[i] === 0) && (newObj.denominator % primeFactors[i] === 0));
+    }
+  }
+  returnString = newObj.numerator + '/' + newObj.denominator;
+  return (returnString);
+
+}
+
+function updateEditorPane (nodalObject) {
+  var frequencyRatioString = getFrequencyRatioStringFromArray(nodalObject.coordinates);
+  var currentNodeDisplayString = 'Current Node: ' + frequencyRatioString + ', ' + nodalObject.hertz.toFixed(2) + ' Hertz';
+  $('#currentNodeDisplay').text(currentNodeDisplayString);
+
+}
+
 hookUpMergerNodes();
 initializeGlobals();
 
@@ -536,12 +606,29 @@ $(document).ready(function(){
 
     });
 
+    $('#incrementInterval').on('click', function() {
+      currentNodeObject.intervallicEquivalenceDisplacement += 1;
+      currentNodeObject.hertz = currentNodeObject.hertz * getKeyValue(pitchSpace);
+      currentNodeObject.osc.frequency.value = currentNodeObject.hertz;
+      updateEditorPane(currentNodeObject);
+
+    });
+
+    $('#decrimentInterval').on('click', function() {
+      currentNodeObject.intervallicEquivalenceDisplacement -= 1;
+      currentNodeObject.hertz = currentNodeObject.hertz / getKeyValue(pitchSpace);
+      currentNodeObject.osc.frequency.value = currentNodeObject.hertz;
+      updateEditorPane(currentNodeObject);
+
+    });
+
     $('#nodeCanvas').on('click', function(event) {
       var clickedNode = $(event.target);
       var nodeOscillator;
       var nodePan;
       var nodeGain;
       var inputHandle;
+
 
       console.log(clickedNode);
 
@@ -559,7 +646,8 @@ $(document).ready(function(){
 
 
           if (activeNode.attr("parameters") === 'unedited') {
-            // if node is "edited", unmute old oscillator. Update editor pane.
+            // if node is "unedited", enable new oscillator and start it, set property to edited. Push new node into user drone. Set editor pane.
+
             activeNode.attr("parameters", "edited");
             nodeOscillator = initNewOscillator(activeNode.attr("coordinates"));
             nodePan = initNewPan();
@@ -570,7 +658,11 @@ $(document).ready(function(){
             nodeOscillator.connect(nodePan);
 
             nodeOscillator.start();
-            // pushNewNodeToUserDrone(activeNode.attr("coordinates"))
+            currentNodeObject = initDroneObject(nodeOscillator, nodePan, nodeGain, activeNode.attr("coordinates"));
+            droneContent.push(currentNodeObject);
+
+            updateEditorPane(currentNodeObject);
+
             // updateCurrentNodeEditorDisplay(activeNode.attr("coordinates"));
             // initNewVolumeEditorPaneAndBorder(activeNode);
             // initLFOPane(activeNode);
@@ -578,7 +670,8 @@ $(document).ready(function(){
             // initHarmonicEquivalenceTransversalPane(activeNode);
 
           } else {
-            // if node is "unedited", enable new oscillator and start it, set property to edited. Push new node into user drone. Set editor pane.
+            // if node is "edited", unmute old oscillator. Update editor pane.
+
 
           }
         } else if (activeNode === clickedNode) {

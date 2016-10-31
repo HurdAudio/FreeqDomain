@@ -60,7 +60,13 @@
                 <li id="displaydB" class="collection-item blue-grey lighten-3">
                   <h3 id="volumeDisplay"></h3>
                 </li>
-                <li id="masterVolumeSlider" class="collection-item blue-grey"></li>
+                <li id="masterVolumeSlider" class="collection-item blue-grey">
+                  <form action="#">
+                      <p class="range-field">
+                      </p>
+                    </form>
+
+                </li>
                 <li class="collection-item blue-grey lighten-3">
 
                     <a id="muteButton" class="lighten-4 btn-flat deep-orange darken-4"><h6>MUTE</h6></a>
@@ -98,19 +104,24 @@
 
             <div id="editPanel" class="container col s3 push-s8">
               <ul class="collection with-header">
-                <li id="currentNodeDisplay" class="collection-header blue-grey">
-                  <h6>Current Node:</h6>
+                <li class="collection-header blue-grey">
+                  <h6 id="currentNodeDisplay">Current Node:</h6>
                   <div class="fixed-action-btn">
                     <a class="btn-floating btn-small teal darken-2">
                       <i class="large material-icons">reorder</i>
                     </a>
                     <ul>
-                      <li><a class="btn-floating teal lighten-1"><i class="material-icons">add</i></a></li>
-                      <li><a class="btn-floating teal lighten-2"><i class="material-icons">remove</i></a></li>
+                      <li><a id="incrementInterval" class="btn-floating teal lighten-1"><i class="material-icons">add</i></a></li>
+                      <li><a id="decrimentInterval" class="btn-floating teal lighten-2"><i class="material-icons">remove</i></a></li>
                     </ul>
                   </div>
                 </li>
-                <li id="nodeVolume" class="collection-item blue-grey lighten-3"></li>
+                <li id="nodeVolume" class="collection-item blue-grey lighten-3">
+                  <form action="#">
+                      <p class="range-field">GAIN
+                      </p>
+                    </form>
+                </li>
                 <li id="LFOenable" class="collection-item blue-grey">
                   <h6>LFO:
                   <a class="btn-floating btn-small waves-effect waves-light grey"><i class="material-icons">power_settings_new</i></a>
@@ -133,6 +144,12 @@
 
                     <li><a href="#!">sawtooth</a></li>
                   </ul>
+                </li>
+                <li id="panSlider" class="collection-item blue-grey">
+                  <form action="#">
+                      <p class="range-field">PAN
+                      </p>
+                  </form>
                 </li>
               </ul>
             </div>
