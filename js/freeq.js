@@ -638,6 +638,23 @@ $(document).ready(function(){
 
     });
 
+    $('#sinewave').on('click', function() {
+      currentNodeObject.osc.type = 'sine';
+
+    });
+
+    $('#squarewave').on('click', function () {
+      currentNodeObject.osc.type = 'square';
+    });
+
+    $('#trianglewave').on('click', function () {
+      currentNodeObject.osc.type = 'triangle';
+    });
+
+    $('#sawtoothwave').on('click', function () {
+      currentNodeObject.osc.type = 'sawtooth';
+    });
+
     $('#nodeCanvas').on('click', function(event) {
       var clickedNode = $(event.target);
       var nodeOscillator;
