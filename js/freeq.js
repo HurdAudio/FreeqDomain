@@ -510,7 +510,7 @@ function initNewPan () {
 
 function initNewGain () {
   var newGain = allocateGainNode();
-  newGain.gain.value = 1.0;
+  newGain.gain.value = 0.0;
   return (newGain);
 }
 
@@ -580,6 +580,13 @@ function updateEditorPane (nodalObject) {
 
 }
 
+function updateNodeRadius (targetNode, gainValue) {
+  var borderPix = Math.floor(gainValue / 3);
+  var borderString = 'solid red ' + borderPix + 'px';
+
+  targetNode.parent().css("border", borderString);
+}
+
 hookUpMergerNodes();
 initializeGlobals();
 
@@ -603,6 +610,15 @@ $(document).ready(function(){
         $('#volumeDisplay').text((newVolume - 100) +'dB');
         muteState = false;
 
+
+    });
+
+    $('#thisIsNodeVolumeSlider').on('input', function () {
+        // $('#thisIsMasterVolumeSlider').hide();
+        var newVolume = $('#thisIsNodeVolumeSlider').val();
+        currentNodeObject.gain.gain.value = Math.abs((newVolume - 1)/100);
+        currentNodeObject.gainvalue = currentNodeObject.gain.gain.value;
+        updateNodeRadius(activeNode, newVolume);
 
     });
 
