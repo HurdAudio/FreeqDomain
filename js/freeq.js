@@ -573,10 +573,36 @@ function getFrequencyRatioStringFromArray (locationArray) {
 
 }
 
+function getTonality (coArray) {
+  var isOrigin = true;
+  var index = (coArray.length - 1);
+
+  for (let i = 0; i < coArray.length; i++) {
+    if (coArray[i] !== 0) {
+      isOrigin = false;
+    }
+  }
+  if (isOrigin === true) {
+    return ('Origin');
+  }
+  if (coArray[index] === 0) {
+    do {
+      --index;
+    } while (coArray[index] === 0);
+  }
+  if (coArray[index] > 0) {
+    return ('Otonal');
+  } else {
+    return ('Utonal');
+  }
+}
+
 function updateEditorPane (nodalObject) {
   var frequencyRatioString = getFrequencyRatioStringFromArray(nodalObject.coordinates);
   var currentNodeDisplayString = 'Current Node: ' + frequencyRatioString + ', ' + nodalObject.hertz.toFixed(2) + ' Hertz';
   $('#currentNodeDisplay').text(currentNodeDisplayString);
+  var identifierString = activeNode.attr("coordinates") + ' ' + getTonality(nodalObject.coordinates);
+  $('#otonalUtonalIdentifier').text(identifierString);
 
 }
 
@@ -619,6 +645,17 @@ $(document).ready(function(){
         currentNodeObject.gain.gain.value = Math.abs((newVolume - 1)/100);
         currentNodeObject.gainvalue = currentNodeObject.gain.gain.value;
         updateNodeRadius(activeNode, newVolume);
+
+    });
+
+    $('#thisIsNodePanSlider').on('input', function () {
+        var newPanVal = $('#thisIsNodePanSlider').val();
+        if (newPanVal === 50) {
+          currentNodeObject.pan.pan.value = 0;
+        } else {
+          currentNodeObject.pan.pan.value = (((newPanVal/99) * 2) - 1);
+        }
+
 
     });
 
