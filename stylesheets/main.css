@@ -40,6 +40,7 @@ header, main, footer {
   right: 0;
   font-family: 'Expletus Sans', serif;
   text-align: left;
+  display: none;
 }
 
 #wavformSelect {

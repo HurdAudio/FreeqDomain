@@ -15,25 +15,99 @@ $('.dropdown-button').dropdown({
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 // Create oscillator and gain node for the purpose of testing master volume
-var masterOscillator = audioCtx.createOscillator();
+// var masterOscillator = audioCtx.createOscillator();
+
+// Audio mixing path being set up
+//
+// Create Master Gain. Connect it to desination (speakers)
+
 var masterGainNode = audioCtx.createGain();
-var masterVolume = 0.5;
+// alert(masterGainNode);
+var masterVolume = 0.01;
+masterGainNode.gain.value = masterVolume;
+masterGainNode.connect(audioCtx.destination);
+// alert('Master Gain connected to Audio Context Destination');
+
+// Now create Dynamics Compressor - connect this to the Master Gain Node
+var masterCompressorNode = audioCtx.createDynamicsCompressor();
+// alert(masterCompressorNode);
+masterCompressorNode.connect(masterGainNode);
+// alert('Compressor now connected to Master Gain');
+
+// Now create lowpass filter and connect this to the compressor
+var masterFilterNode = audioCtx.createBiquadFilter();
+// alert(masterFilterNode);
+masterFilterNode.type = "lowpass";
+masterFilterNode.frequency.value = 2000;
+masterFilterNode.connect(masterCompressorNode);
+// alert('Lowpass filter now plugged into compressor');
+
+// Now create master merger node and connect this to the lowpass filter
+var masterMergerNode = audioCtx.createChannelMerger(8);
+// alert(masterMergerNode);
+masterMergerNode.connect(masterFilterNode);
+// alert('Master Merger Node connected to filter');
+
+// New create 8! sub-merger Nodes and hook them to the 8 inputs on the master merger node
+var subMergerNode1 = audioCtx.createChannelMerger(8);
+// alert(subMergerNode1);
+subMergerNode1.connect(masterMergerNode, 0, 0);
+// alert('sub1 connected to master');
+var subMergerNode2 = audioCtx.createChannelMerger(8);
+// alert(subMergerNode2);
+subMergerNode2.connect(masterMergerNode, 0, 1);
+// alert('sub2 connected to master');
+var subMergerNode3 = audioCtx.createChannelMerger(8);
+// alert(subMergerNode3);
+subMergerNode3.connect(masterMergerNode, 0, 2);
+// alert('sub3 connected to master');
+var subMergerNode4 = audioCtx.createChannelMerger(8);
+// alert(subMergerNode4);
+subMergerNode4.connect(masterMergerNode, 0, 3);
+// alert('sub4 connected to master');
+var subMergerNode5 = audioCtx.createChannelMerger(8);
+// alert(subMergerNode5);
+subMergerNode5.connect(masterMergerNode, 0, 4);
+// alert('sub5 connected to master');
+var subMergerNode6 = audioCtx.createChannelMerger(8);
+// alert(subMergerNode6);
+subMergerNode6.connect(masterMergerNode, 0, 5);
+// alert('sub6 connected to master');
+var subMergerNode7 = audioCtx.createChannelMerger(8);
+// alert(subMergerNode7);
+subMergerNode7.connect(masterMergerNode, 0, 6);
+// alert('sub7 connected to master');
+var subMergerNode8 = audioCtx.createChannelMerger(8);
+// alert(subMergerNode8);
+subMergerNode8.connect(masterMergerNode, 0, 7);
+// alert('sub8 connected to master');
+
+
+
+
+
+var inputManager = [];
+var inputIndex = -1;
+
+
+
 var muteState = false;
 var pitchSpace = {};
 var numberOfDimensions = 1;
 var dimensionKey = [];
 var primeFactors = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
 var oneOverOne = {};
+var activeNode = null;
+var droneContent = [];
 
 
 
 
-masterOscillator.connect(masterGainNode);
-masterGainNode.connect(audioCtx.destination);
 
-masterOscillator.type = 'sine';
-masterOscillator.frequency.value = 311.126983722080911;
-masterOscillator.start();
+
+// masterOscillator.type = 'sine';
+// masterOscillator.frequency.value = 311.126983722080911;
+// masterOscillator.start();
 masterGainNode.gain.value = masterVolume;
 
 
@@ -45,6 +119,54 @@ masterGainNode.gain.value = 0.01;
 
 //Initialize Node Volume fader
 var nodeVolumeSlider = $('#nodeVolume').append('<input type="range" min="1" max ="100" value="1" id="thisIsNodeVolumeSlider" display="none" >');
+
+function getNextInput () {
+  ++inputIndex;
+  if (inputIndex === 64) {
+    inputIndex = 0;
+  }
+  return inputIndex;
+}
+
+function hookUpMergerNodes () {
+
+
+  for (let i = 0; i < 8; i++) {
+
+    inputManager[i] = [];
+    inputManager[i][0] = subMergerNode1;
+    inputManager[i][1] = i;
+
+    inputManager[i + 8] = [];
+    inputManager[i + 8][0] = subMergerNode2;
+    inputManager[i + 8][1] = i;
+
+    inputManager[i + 16] = [];
+    inputManager[i + 16][0] = subMergerNode3;
+    inputManager[i + 16][1] = i;
+
+    inputManager[i + 24] = [];
+    inputManager[i + 24][0] = subMergerNode4;
+    inputManager[i + 24][1] = i;
+
+    inputManager[i + 32] = [];
+    inputManager[i + 32][0] = subMergerNode5;
+    inputManager[i + 32][1] = i;
+
+    inputManager[i + 40] = [];
+    inputManager[i + 40][0] = subMergerNode6;
+    inputManager[i + 40][1] = i;
+
+    inputManager[i + 48] = [];
+    inputManager[i + 48][0] = subMergerNode7;
+    inputManager[i + 48][1] = i;
+
+    inputManager[i + 56] = [];
+    inputManager[i + 56][0] = subMergerNode8;
+    inputManager[i + 56][1] = i;
+  }
+
+}
 
 function convertToDisplayString (obj) {
   var returnString = '';
@@ -258,6 +380,137 @@ function initializeGlobals () {
   return (true);
 }
 
+function allocateOscillator () {
+  var newOscillator = audioCtx.createOscillator();
+
+  return (newOscillator);
+
+}
+
+function allocatePanNode () {
+  var panNode = audioCtx.createStereoPanner();
+
+  return (panNode);
+}
+
+function allocateGainNode () {
+  var newGainNode = audioCtx.createGain();
+
+  return (newGainNode);
+}
+
+function convertLocationStringToArray (convertString) {
+  var returnArray = [];
+  var subString = '';
+  var index = 0;
+
+  for (let i=0; i < convertString.length; i++) {
+    if ((convertString[i] !== '[') && (convertString[i] !== ']')) {
+      if (convertString[i] !== ' ') {
+        do {
+          subString += convertString[i];
+          ++i;
+        } while ((convertString[i] !== '[') && (convertString[i] !== ']') && (convertString[i] !== ' '));
+      }
+    }
+    if (subString !== '') {
+      returnArray[index] = parseInt(subString);
+      ++index;
+      subString = '';
+    }
+
+
+  }
+  // alert(returnArray);
+  return (returnArray);
+
+}
+
+function getKeyValue (obj) {
+  var returnNumber = 0;
+
+  if (obj.denominator !== 0) {
+    returnNumber = (obj.numerator / obj.denominator);
+  }  else {
+    alert ('Divide by Zero Error');
+    return (1);
+  }
+  if (obj.exponentNumerator === 0) {
+    return (1);
+  }
+  if (obj.exponentDenominator === 0) {
+    alert ('Divide by Zero Error');
+    return (1);
+  }
+  if ((obj.exponentNumerator/obj.exponentDenominator) === 1) {
+    return returnNumber;
+  } else {
+    returnNumber = Math.pow(returnNumber, (obj.exponentNumerator/obj.exponentDenominator));
+  }
+  return returnNumber;
+}
+
+function getFrequencyFromArray (coordArray) {
+  var frequencyRatio = 1;
+  var obj = {};
+  obj.numerator = 1;
+  obj.denominator = 1;
+  var returnFrequency = oneOverOne.hertz;
+
+  for (let i=0; i < dimensionKey.length; i++) {
+    if (coordArray[i] === '0') {
+      obj.numerator = obj.numerator * 1;
+      obj.denominator = obj.denominator * 1;
+    } else if (coordArray[i] > 0) {
+      obj.numerator = obj.numerator * (Math.pow(getKeyValue(dimensionKey[i]), coordArray[i]));
+    } else {
+      obj.denominator = obj.denominator * (Math.pow(getKeyValue(dimensionKey[i]), Math.abs(coordArray[i])));
+
+    }
+  }
+  frequencyRatio = obj.numerator/obj.denominator;
+  if (frequencyRatio > getKeyValue(pitchSpace)) {
+    do {
+      frequencyRatio = frequencyRatio/getKeyValue(pitchSpace);
+    } while (frequencyRatio > getKeyValue(pitchSpace));
+
+  }
+  if (frequencyRatio < 1) {
+    do {
+      frequencyRatio = frequencyRatio * getKeyValue(pitchSpace);
+    } while (frequencyRatio < 1);
+  }
+  returnFrequency = returnFrequency * frequencyRatio;
+
+  return returnFrequency;
+
+}
+
+
+function initNewOscillator (locationString) {
+  var osc = allocateOscillator();
+  var arr = [];
+  arr = convertLocationStringToArray(locationString);
+  var freeq = getFrequencyFromArray(arr);
+  osc.type = 'sine';
+  osc.frequency.value = freeq;
+
+  return osc;
+}
+
+function initNewPan () {
+  var newPan = allocatePanNode();
+  newPan.pan.value = 0;
+  return (newPan);
+}
+
+function initNewGain () {
+  var newGain = allocateGainNode();
+  newGain.gain.value = 1.0;
+  return (newGain);
+}
+
+hookUpMergerNodes();
 initializeGlobals();
 
 
@@ -280,6 +533,60 @@ $(document).ready(function(){
         $('#volumeDisplay').text((newVolume - 100) +'dB');
         muteState = false;
 
+
+    });
+
+    $('#nodeCanvas').on('click', function(event) {
+      var clickedNode = $(event.target);
+      var nodeOscillator;
+      var nodePan;
+      var nodeGain;
+      var inputHandle;
+
+      console.log(clickedNode);
+
+      if ((clickedNode.attr("id") === 'origin') || (clickedNode.attr("alt") === 'node')) {
+        console.log("We have our node!");
+        if (activeNode === null) {
+
+          // display our editor pane, set activeNode to current node, update node icon and color.
+
+          $('#editPanel').show();
+          activeNode = clickedNode;
+          activeNode.text('volume_up');
+          activeNode.parent().attr("class", "btn-floating btn-large waves-effect waves-light teal z-depth-4");
+
+
+
+          if (activeNode.attr("parameters") === 'unedited') {
+            // if node is "edited", unmute old oscillator. Update editor pane.
+            activeNode.attr("parameters", "edited");
+            nodeOscillator = initNewOscillator(activeNode.attr("coordinates"));
+            nodePan = initNewPan();
+            nodeGain = initNewGain();
+            inputHandle = getNextInput();
+            nodeGain.connect(inputManager[inputHandle][0], 0, inputManager[inputHandle][1]);
+            nodePan.connect(nodeGain);
+            nodeOscillator.connect(nodePan);
+
+            nodeOscillator.start();
+            // pushNewNodeToUserDrone(activeNode.attr("coordinates"))
+            // updateCurrentNodeEditorDisplay(activeNode.attr("coordinates"));
+            // initNewVolumeEditorPaneAndBorder(activeNode);
+            // initLFOPane(activeNode);
+            // initWaveFormPane(activeNode);
+            // initHarmonicEquivalenceTransversalPane(activeNode);
+
+          } else {
+            // if node is "unedited", enable new oscillator and start it, set property to edited. Push new node into user drone. Set editor pane.
+
+          }
+        } else if (activeNode === clickedNode) {
+          // user has selected active node. This turns node off and mutes its output. Editor pane is hidden. activeNode returns to null.
+        } else {
+          // user has moved to current node from another node. Update our editor pane accordingly
+        }
+      }
 
     });
 
