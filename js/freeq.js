@@ -613,6 +613,24 @@ function updateNodeRadius (targetNode, gainValue) {
   targetNode.parent().css("border", borderString);
 }
 
+function getObjectByCoordinateMatch (arrayToMatch) {
+  var match = true;
+
+  for (let i = 0; i < droneContent.length; i++) {
+    for (let j = 0; j < droneContent[i].coordinates.length; j++) {
+      if (arrayToMatch[j] !== droneContent[i].coordinates[j]) {
+        match = false;
+      }
+    }
+    if (match === true) {
+      return (droneContent[i]);
+    } else {
+      match = true;
+    }
+  }
+  alert('ERROR - No match found in Drone Array');
+}
+
 hookUpMergerNodes();
 initializeGlobals();
 
@@ -698,6 +716,7 @@ $(document).ready(function(){
       var nodePan;
       var nodeGain;
       var inputHandle;
+      var checkArray;
 
 
       console.log(clickedNode);
@@ -708,7 +727,7 @@ $(document).ready(function(){
 
           // display our editor pane, set activeNode to current node, update node icon and color.
 
-          $('#editPanel').show();
+
           activeNode = clickedNode;
           activeNode.text('volume_up');
           activeNode.parent().attr("class", "btn-floating btn-large waves-effect waves-light teal z-depth-4");
@@ -718,6 +737,7 @@ $(document).ready(function(){
           if (activeNode.attr("parameters") === 'unedited') {
             // if node is "unedited", enable new oscillator and start it, set property to edited. Push new node into user drone. Set editor pane.
 
+            $('#editPanel').show();
             activeNode.attr("parameters", "edited");
             nodeOscillator = initNewOscillator(activeNode.attr("coordinates"));
             nodePan = initNewPan();
@@ -733,21 +753,49 @@ $(document).ready(function(){
 
             updateEditorPane(currentNodeObject);
 
-            // updateCurrentNodeEditorDisplay(activeNode.attr("coordinates"));
-            // initNewVolumeEditorPaneAndBorder(activeNode);
             // initLFOPane(activeNode);
-            // initWaveFormPane(activeNode);
-            // initHarmonicEquivalenceTransversalPane(activeNode);
 
           } else {
+            // alert('edited');
             // if node is "edited", unmute old oscillator. Update editor pane.
+            // find our matching object in the droneContent array. Make that current.
+            // alert(clickedNode.attr("coordinates"));
+            checkArray = convertLocationStringToArray(clickedNode.attr("coordinates"));
+            currentNodeObject = getObjectByCoordinateMatch (checkArray);
+            // Update relevant parameters. Unhide edit pane.
+            currentNodeObject.gain.gain.value = currentNodeObject.gainvalue;
+            currentNodeObject.active = true;
+            // Make edit pane current.
+            updateEditorPane(currentNodeObject);
+            $('#editPanel').show();
+
 
 
           }
-        } else if (activeNode === clickedNode) {
+        } else if ((clickedNode.attr("coordinates")) === (activeNode.attr("coordinates"))) {
+          // alert('we have reached the turn-off');
           // user has selected active node. This turns node off and mutes its output. Editor pane is hidden. activeNode returns to null.
+          currentNodeObject.active = false;
+          currentNodeObject.gain.gain.value = 0.0;
+          activeNode.parent().attr("class", "btn-floating btn-large waves-effect waves-light grey z-depth-2");
+          $('#editPanel').css("display", "none");
+          activeNode.text('music_note');
+          activeNode = null;
+
         } else {
           // user has moved to current node from another node. Update our editor pane accordingly
+          checkArray = convertLocationStringToArray(clickedNode.attr("coordinates"));
+          currentNodeObject = getObjectByCoordinateMatch (checkArray);
+          if (currentNodeObject.active === true) {
+            updateEditorPane(currentNodeObject);
+            $('#editPanel').show();
+          } else {
+            currentNodeObject.gain.gain.value = currentNodeObject.gainvalue;
+            currentNodeObject.active = true;
+            // Make edit pane current.
+            updateEditorPane(currentNodeObject);
+            $('#editPanel').show();
+          }
         }
       }
 
