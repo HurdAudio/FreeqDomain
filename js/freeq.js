@@ -631,6 +631,48 @@ function getObjectByCoordinateMatch (arrayToMatch) {
   alert('ERROR - No match found in Drone Array');
 }
 
+function arrayToString (arr) {
+  var returnString = '[';
+
+  for (let i = 0; i < arr.length; i++) {
+    returnString = returnString + arr[i];
+    if (i < (arr.length - 1)) {
+      returnString = returnString + ',';
+    }
+  }
+  returnString = returnString + ']';
+
+  return (returnString);
+}
+
+function addNewNode (siblingNode, pendStateString) {
+  // function to dynamically add a new node with coordinate values calculated. alt is set to "node".
+
+  var iString = '<div class="valign"><a class="btn-floating btn-large waves-effect waves-light grey z-depth-2"><i class="material-icons" coordinates="';
+  var iStringMid = '';
+  var iStringEnd = '" sonicstatus="off" parameters="unedited" alt="node">music_note</i></a></div>';
+  var siblingCoordString = siblingNode.find('.material-icons').attr("coordinates");
+  var positionArray = convertLocationStringToArray(siblingCoordString);
+  // alert(siblingNode.parent().attr("id"));
+
+
+  if (pendStateString === 'prepend') {
+    positionArray[0] = positionArray[0] - 1;
+    iStringMid = arrayToString(positionArray);
+    siblingNode.parent().prepend(iString + iStringMid + iStringEnd);
+
+  } else if (pendStateString === 'append') {
+    positionArray[0] = positionArray[0] + 1;
+    iStringMid = arrayToString(positionArray);
+    siblingNode.parent().append(iString + iStringMid + iStringEnd);
+
+  }
+
+
+
+
+}
+
 hookUpMergerNodes();
 initializeGlobals();
 
@@ -643,7 +685,7 @@ $(document).ready(function(){
     console.log( "ready!" );
 
     $(".dropdown-button").dropdown();
-    $(".parallax" ).fadeTo( "slow" , 0.3);
+    $(".parallax" ).fadeTo( "slow" , 0.5);
     $("#volumeDisplay").text('-99dB');
 
     $('#thisIsMasterVolumeSlider').on('input', function () {
@@ -710,6 +752,35 @@ $(document).ready(function(){
       currentNodeObject.osc.type = 'sawtooth';
     });
 
+    $('#addNodes').on('click', function () {
+      var grabDiv = $('#canvas :first-child');
+      var lastDiv = $('#canvas :last-child');
+      var grabNodeDiv;
+      var pend = '';
+
+
+      do {
+        //prepend to first child
+        grabNodeDiv = grabDiv.children(':first');
+        pend = 'prepend';
+        addNewNode(grabNodeDiv, pend);
+
+
+
+
+        //append to last child
+        grabNodeDiv = grabDiv.children('div').last();
+        pend = 'append';
+        addNewNode(grabNodeDiv, pend);
+
+        // set grabDiv to next child - need to write this code when adding second dimension
+        if ((grabDiv.attr("id")) !== (lastDiv.attr("id"))) {
+          grabDiv = grabDiv.next('div');
+        }
+
+      } while ((grabDiv.attr("id")) !== (lastDiv.attr("id")));
+    });
+
     $('#nodeCanvas').on('click', function(event) {
       var clickedNode = $(event.target);
       var nodeOscillator;
@@ -719,11 +790,11 @@ $(document).ready(function(){
       var checkArray;
 
 
-      console.log(clickedNode);
 
       if ((clickedNode.attr("id") === 'origin') || (clickedNode.attr("alt") === 'node')) {
-        console.log("We have our node!");
+        // alert('Verified that we have clicked on a damn node');
         if (activeNode === null) {
+          // alert('Clicked while no nodes are active.');
 
           // display our editor pane, set activeNode to current node, update node icon and color.
 
@@ -736,14 +807,18 @@ $(document).ready(function(){
 
           if (activeNode.attr("parameters") === 'unedited') {
             // if node is "unedited", enable new oscillator and start it, set property to edited. Push new node into user drone. Set editor pane.
-
+            // alert('This node has not been previously edited');
             $('#editPanel').show();
             activeNode.attr("parameters", "edited");
             nodeOscillator = initNewOscillator(activeNode.attr("coordinates"));
             nodePan = initNewPan();
             nodeGain = initNewGain();
             inputHandle = getNextInput();
-            nodeGain.connect(inputManager[inputHandle][0], 0, inputManager[inputHandle][1]);
+            // alert(inputHandle);
+            // alert(inputManager[inputHandle][0]);
+            // alert(inputManager[inputHandle][1]);
+            nodeGain.connect(inputManager[inputHandle][0], 0, 0);
+            // nodeGain.connect(inputManager[8][0], 0, 0);
             nodePan.connect(nodeGain);
             nodeOscillator.connect(nodePan);
 
@@ -773,7 +848,6 @@ $(document).ready(function(){
 
           }
         } else if ((clickedNode.attr("coordinates")) === (activeNode.attr("coordinates"))) {
-          // alert('we have reached the turn-off');
           // user has selected active node. This turns node off and mutes its output. Editor pane is hidden. activeNode returns to null.
           currentNodeObject.active = false;
           currentNodeObject.gain.gain.value = 0.0;
@@ -783,19 +857,56 @@ $(document).ready(function(){
           activeNode = null;
 
         } else {
+          // ActiveNode is not Null.  ActiveNode is not equal to clickedNode.
+
           // user has moved to current node from another node. Update our editor pane accordingly
-          checkArray = convertLocationStringToArray(clickedNode.attr("coordinates"));
-          currentNodeObject = getObjectByCoordinateMatch (checkArray);
-          if (currentNodeObject.active === true) {
-            updateEditorPane(currentNodeObject);
+          // shut down active pane and do some housework to maintain previously playing node(s)
+          $('#editPanel').css("display", "none");
+          activeNode = clickedNode;
+          activeNode.text('volume_up');
+          activeNode.parent().attr("class", "btn-floating btn-large waves-effect waves-light teal z-depth-4");
+
+          // Is new node unedited?
+          if (activeNode.attr("parameters") === 'unedited') {
+            // alert('This node has not been previously edited');
+
+            // Initialize a new node, new object, push it into droneContent array.
             $('#editPanel').show();
+            activeNode.attr("parameters", "edited");
+            nodeOscillator = initNewOscillator(activeNode.attr("coordinates"));
+            nodePan = initNewPan();
+            nodeGain = initNewGain();
+            inputHandle = getNextInput();
+            // nodeGain.connect(inputManager[inputHandle][0], 0, inputManager[inputHandle][1]);
+            nodeGain.connect(inputManager[inputHandle][0], 0, 0);
+
+            nodePan.connect(nodeGain);
+            nodeOscillator.connect(nodePan);
+
+            nodeOscillator.start();
+            currentNodeObject = initDroneObject(nodeOscillator, nodePan, nodeGain, activeNode.attr("coordinates"));
+            droneContent.push(currentNodeObject);
+
+            updateEditorPane(currentNodeObject);
+
           } else {
-            currentNodeObject.gain.gain.value = currentNodeObject.gainvalue;
-            currentNodeObject.active = true;
-            // Make edit pane current.
-            updateEditorPane(currentNodeObject);
-            $('#editPanel').show();
+            // Re-activate previously active node
+
+              checkArray = convertLocationStringToArray(clickedNode.attr("coordinates"));
+              currentNodeObject = getObjectByCoordinateMatch (checkArray);
+              if (currentNodeObject.active === true) {
+                updateEditorPane(currentNodeObject);
+                $('#editPanel').show();
+              } else {
+                currentNodeObject.gain.gain.value = currentNodeObject.gainvalue;
+                currentNodeObject.active = true;
+                // Make edit pane current.
+                updateEditorPane(currentNodeObject);
+                $('#editPanel').show();
+              }
+
           }
+
         }
       }
 
