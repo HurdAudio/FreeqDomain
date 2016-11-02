@@ -88,6 +88,7 @@ subMergerNode8.connect(masterMergerNode, 0, 7);
 
 var inputManager = [];
 var inputIndex = -1;
+var requests = [];
 
 
 
@@ -120,9 +121,11 @@ masterGainNode.gain.value = 0.01;
 
 //Initialize Node Volume fader
 var nodeVolumeSlider = $('#nodeVolume').append('<input type="range" min="1" max ="100" value="1" id="thisIsNodeVolumeSlider" display="none" >');
+nodeVolumeSlider = 1;
 
 //Initialize Node Pan Slider
 var nodePanSlider = $('#panSlider').append('<input type="range" min="1" max="100" value="50" id="thisIsNodePanSlider">');
+nodePanSlider = 50;
 
 function getNextInput () {
   ++inputIndex;
@@ -673,6 +676,531 @@ function addNewNode (siblingNode, pendStateString) {
 
 }
 
+function generatePSpaceOrKey (getString) {
+  var returnObj = {};
+  var arrayOfRandoms = []
+  var $xhr = $.getJSON(getString);
+  requests.push($xhr);
+
+  $xhr.done(function(data) {
+
+      if ($xhr.status !== 200) {
+        return;
+      }
+      console.log(data);
+      console.log(data.data);
+
+      for (let i = 0; i < data.data.length; i++) {
+        arrayOfRandoms[i] = data.data[i] + 1;
+      }
+
+      if (arrayOfRandoms[0] > arrayOfRandoms[1]) {
+        returnObj.numerator = arrayOfRandoms[0];
+        returnObj.denominator = arrayOfRandoms[1];
+      } else {
+        returnObj.numerator = arrayOfRandoms[1];
+        returnObj.denominator = arrayOfRandoms[0];
+      }
+
+      returnObj.exponentNumerator = arrayOfRandoms[2];
+      returnObj.exponentDenominator = arrayOfRandoms[3];
+
+      console.log(returnObj);
+
+      return (returnObj);
+
+
+
+
+
+
+
+    });
+
+    $xhr.fail(function(data) {
+      console.log('Query failed!');
+      alert('API FAILURE');
+    });
+}
+
+function generateOneOverOne (getString) {
+  var returnObj = {};
+  var pitchClassNumber = 0;
+  var pitchClassString = '';
+  var displacement = 0;
+  var arrayOfRandoms = [];
+  var $xhr = $.getJSON(getString);
+  requests.push($xhr);
+
+  $xhr.done(function(data) {
+
+      if ($xhr.status !== 200) {
+        return;
+      }
+      console.log(data);
+      console.log(data.data);
+
+      for (let i = 0; i < data.data.length; i++) {
+        arrayOfRandoms[i] = data.data[i];
+      }
+
+      pitchClassNumber = (arrayOfRandoms[0] % 12)
+        switch (pitchClassNumber) {
+          case (0):
+            pitchClassString = 'C';
+            break;
+          case (1):
+            pitchClassString = 'D-flat';
+            break;
+          case (2):
+            pitchClassString = 'D';
+            break;
+          case (3):
+            pitchClassString = 'E-flat';
+            break;
+          case (4):
+            pitchClassString = 'E';
+            break;
+          case (5):
+            pitchClassString = 'F';
+            break;
+          case (6):
+            pitchClassString = 'F-sharp';
+            break;
+          case (7):
+            pitchClassString = 'G';
+            break;
+          case (8):
+            pitchClassString = 'A-flat';
+            break;
+          case (9):
+            pitchClassString = 'A';
+            break;
+          case (10):
+            pitchClassString = 'B-flat';
+            break;
+          case (11):
+            pitchClassString = 'B';
+            break;
+          default:
+            alert('this condition not possible');
+            break;
+        }
+        returnObj.pitchClass = pitchClassString;
+
+        displacement = (arrayOfRandoms[1] % 9);
+        displacement += 1;
+        returnObj.hertz = getHertz(pitchClassString, displacement);
+        console.log(returnObj);
+        return (returnObj);
+
+
+
+
+
+
+
+
+    });
+
+    $xhr.fail(function(data) {
+      console.log('Query failed!');
+      alert('API FAILURE');
+    });
+}
+
+function generateRandomDimension (getString) {
+  var returnNum = 0;
+  var $xhr = $.getJSON(getString);
+  requests.push($xhr);
+
+  $xhr.done(function(data) {
+
+      if ($xhr.status !== 200) {
+        return;
+      }
+      console.log(data);
+      console.log(data.data);
+
+      returnNum = (data.data[0] % 8);
+      returnNum += 1;
+
+      console.log(returnNum);
+      return (returnNum);
+
+
+
+
+
+
+
+    });
+
+    $xhr.fail(function(data) {
+      console.log('Query failed!');
+      alert('API FAILURE');
+    });
+}
+
+function generateRandomNodes (getString) {
+  var returnNum = 0;
+  var $xhr = $.getJSON(getString);
+  requests.push($xhr);
+
+  $xhr.done(function(data) {
+
+      if ($xhr.status !== 200) {
+        return;
+      }
+      console.log(data);
+      console.log(data.data);
+
+      returnNum = (data.data[0] % 64);
+      returnNum += 1;
+
+      console.log(returnNum);
+      return (returnNum);
+
+
+
+
+
+
+
+    });
+
+    $xhr.fail(function(data) {
+      console.log('Query failed!');
+      alert('API FAILURE');
+    });
+}
+
+function generateRandomCoordinates (getString, dimensions) {
+  var returnArray = [];
+
+  var $xhr = $.getJSON(getString);
+  requests.push($xhr);
+
+  $xhr.done(function(data) {
+
+      if ($xhr.status !== 200) {
+        return;
+      }
+      console.log(data);
+      console.log(data.data);
+
+      for (let i = 0; i < data.data.length; i++) {
+        returnArray[i] = ((data.data[i] % 64) - 32);
+      }
+
+      console.log(returnArray);
+      return (returnArray);
+
+
+
+
+
+
+
+    });
+
+    $xhr.fail(function(data) {
+      console.log('Query failed!');
+      alert('API FAILURE');
+    });
+
+}
+
+function generateGainState (getString) {
+  var returnNumber;
+  var $xhr = $.getJSON(getString);
+  requests.push($xhr);
+
+  $xhr.done(function(data) {
+
+      if ($xhr.status !== 200) {
+        return;
+      }
+      console.log(data);
+      console.log(data.data);
+
+      returnNumber = (data.data[0]/256);
+
+      return (returnNumber);
+
+
+    });
+
+    $xhr.fail(function(data) {
+      console.log('Query failed!');
+      alert('API FAILURE');
+    });
+}
+
+function generateWaveformSelection (getString) {
+  var returnString = '';
+  var $xhr = $.getJSON(getString);
+  requests.push($xhr);
+  $xhr.done(function(data) {
+
+    if ($xhr.status !== 200) {
+      return;
+    }
+    console.log(data);
+    console.log(data.data);
+
+    randomValue = (data.data[0] % 4);
+
+    switch (randomValue) {
+      case (0):
+        returnString = 'sine';
+        break;
+      case (1):
+        returnString = 'square';
+        break;
+      case (2):
+        returnString = 'triangle';
+        break;
+      case (3):
+        returnString = 'sawtooth';
+        break;
+      default:
+        alert('Issue with random waveform generator');
+        break;
+    }
+    return (returnString);
+
+
+
+});
+
+  $xhr.fail(function(data) {
+    console.log('Query failed!');
+    alert('API FAILURE');
+  });
+}
+
+function generatePanState (getString) {
+  var returnNumber = 0;
+  var $xhr = $.getJSON(getString);
+  requests.push($xhr);
+
+  $xhr.done(function(data) {
+
+      if ($xhr.status !== 200) {
+        return;
+      }
+      console.log(data);
+      console.log(data.data);
+
+      returnNumber = (data.data[0]/256);
+      returnNumber = returnNumber / 50;
+      returnNumber -= 1;
+
+      return (returnNumber);
+
+
+
+
+    });
+
+    $xhr.fail(function(data) {
+      console.log('Query failed!');
+      alert('API FAILURE');
+    });
+
+}
+
+function generateIntervallicEquivalenceDisplacement (getString) {
+  var returnNumber = 0;
+
+  var $xhr = $.getJSON(getString);
+  requests.push($xhr);
+
+  $xhr.done(function(data) {
+
+      if ($xhr.status !== 200) {
+        return;
+      }
+      console.log(data);
+      console.log(data.data);
+
+      returnNumber = (data.data[0] % 8);
+      returnNumber -= 3;
+
+
+
+      return (returnNumber);
+
+
+
+
+    });
+
+    $xhr.fail(function(data) {
+      console.log('Query failed!');
+      alert('API FAILURE');
+    });
+}
+
+function getFrequencyOfPSpace (pSpaceObject) {
+  var returnFrequencyValue = 0;
+
+  if (pSpaceObject.denominator === 0) {
+    alert('DIVIDE BY ZERO ERROR!');
+    return(1);
+  } else if (pSpaceObject.denominator === 1) {
+    returnFrequencyValue = pSpaceObject.numerator;
+  } else {
+    returnFrequencyValue = (pSpaceObject.numerator / pSpaceObject.denominator);
+  }
+  if (pSpaceObject.exponentDenominator === 0) {
+    alert('Divide By Zero Error!');
+    return (returnFrequencyValue);
+  } else if ((pSpaceObject.exponentNumerator / pSpaceObject.exponentDenominator) === 0) {
+    alert('Bad Exponent in P Space');
+    return (returnFrequencyValue);
+  } else if ((pSpaceObject.exponentNumerator / pSpaceObject.exponentDenominator) === 1) {
+    return (returnFrequencyValue);
+  } else {
+    returnFrequencyValue = Math.pow(returnFrequencyValue, (pSpaceObject.exponenetNumerator / pSpaceObject.exponentDenominator));
+  }
+  return (returnFrequencyValue);
+}
+
+function renderDroneObject (arrayOfDroneMembers) {
+  var frequencyOfNode = 1;
+  var generatedDroneInputHandle = 0;
+
+
+  for (let i=0; i < arrayOfDroneMembers.length; i++) {
+    arrayOfDroneMembers[i].osc = initNewOscillator(arrayOfDroneMembers[i].coordinates);
+    frequencyOfNode = getFrequencyFromArray(arrayOfDroneMembers[i].coordinates);
+    if (arrayOfDroneMembers[i].intervallicEquivalenceDisplacement !== 0) {
+      if (arrayOfDroneMembers[i].intervallicEquivalenceDisplacement > 0) {
+        for (let j = 0; j < arrayOfDroneMembers[i].intervallicEquivalenceDisplacement; j++) {
+          frequencyOfNode = frequencyOfNode * getFrequencyOfPSpace(pitchSpace);
+        }
+      } else {
+        for (let j = 0; j < Math.abs(arrayOfDroneMembers[i].intervallicEquivalenceDisplacement); j++) {
+          frequencyOfNode = frequencyOfNode / getFrequencyOfPSpace(pitchSpace);
+        }
+
+      }
+
+    }
+    arrayOfDroneMembers[i].hertz = frequencyOfNode;
+    arrayOfDroneMembers[i].osc.frequency.value = frequencyOfNode;
+    arrayOfDroneMembers[i].osc.type.value = arrayOfDroneMembers[i].waveform;
+    arrayOfDroneMembers[i].pan = initNewPan();
+    arrayOfDroneMembers[i].pan.pan.value = arrayOfDroneMembers[i].panvalue;
+    arrayOfDroneMembers[i].gain = initNewGain();
+    arrayOfDroneMembers[i].gain.gain.value = arrayOfDroneMembers[i].gainvalue;
+    generatedDroneInputHandle = getNextInput();
+    arrayOfDroneMembers[i].gain.connect(inputManager[generatedDroneInputHandle][0], 0, 0);
+    arrayOfDroneMembers[i].pan.connect(arrayOfDroneMembers[i].gain);
+    arrayOfDroneMembers[i].osc.connect(arrayOfDroneMembers[i].pan);
+    arrayOfDroneMembers[i].lfoStates = [ false, false, false, false, false, false ];
+
+    arrayOfDroneMembers[i].osc.start();
+
+
+
+
+
+
+  }
+}
+
+
+
+function generateRandomDrone (intonationString) {
+
+  var queryStringPart1 = 'https://qrng.anu.edu.au/API/jsonI.php?length=';
+  var arrayLengthRequired = 0;
+  var queryStringPart3 = '&type=uint8';
+  var queryString = '';
+  var randomPSpace = {};
+  var randomOneOverOne = {};
+  var randomDimensions = 0;
+  var randomKey = [];
+  var randomActiveNodes = 0;
+  var randomDroneState = [];
+  // var $xhr = $.getJSON(filmString);
+
+  // Generate P-space parameters - This requires 4 parameters - numerator, denominator, exponentnumerator and exponentdeonminator.
+  arrayLengthRequired = 4;
+  queryString = queryStringPart1 + arrayLengthRequired + queryStringPart3;
+  randomPSpace = generatePSpaceOrKey(queryString);
+
+  // Generate 1/1
+  arrayLengthRequired = 2;
+  queryString = queryStringPart1 + arrayLengthRequired + queryStringPart3;
+  randomOneOverOne = generateOneOverOne(queryString);
+
+  // Generate dimensions
+  arrayLengthRequired = 1;
+  queryString = queryStringPart1 + arrayLengthRequired + queryStringPart3;
+  randomDimensions = generateRandomDimension(queryString);
+
+  // Generate dimensional key
+  arrayLengthRequired = 4;
+  queryString = queryStringPart1 + arrayLengthRequired + queryStringPart3;
+
+  for (let i = 0; i < randomDimensions; i++) {
+    randomKey[i] = {};
+
+    if (intonationString === 'hybrid') {
+      randomKey[i] = generatePSpaceOrKey(queryString);
+    } else {
+      randomKey[i].numerator = primeFactors[i];
+      randomKey[i].denominator = 1;
+      randomKey[i].exponentNumerator = 1;
+      randomKey[i].exponentDenominator = 1;
+    }
+  }
+
+  // Generate number of active nodes
+  arrayLengthRequired = 1;
+  queryString = queryStringPart1 + arrayLengthRequired + queryStringPart3;
+  randomActiveNodes = generateRandomNodes(queryString);
+
+  // Generate node positions
+  arrayLengthRequired = randomDimensions;
+  queryString = queryStringPart1 + arrayLengthRequired + queryStringPart3;
+
+  for (let i = 0; i < randomActiveNodes; i++){
+    randomDroneState[i] = {};
+    randomDroneState[i].coordinates = generateRandomCoordinates(queryString, randomDimensions);
+  }
+
+
+  // Step through new droneState array and generate Gain, Waveform, Pan and intervallic equivalence displacement
+  arrayLengthRequired = 1;
+  queryString = queryStringPart1 + arrayLengthRequired + queryStringPart3;
+
+  for (let i = 0; i < randomDroneState.length; i++) {
+    randomDroneState[i].gainvalue = generateGainState(queryString);
+    randomDroneState[i].waveform = generateWaveformSelection(queryString);
+    randomDroneState[i].panvalue = generatePanState(queryString);
+    randomDroneState[i].intervallicEquivalenceDisplacement = generateIntervallicEquivalenceDisplacement(queryString);
+  }
+
+  //Set globals
+  pitchSpace = randomPSpace;
+  oneOverOne = randomOneOverOne;
+  numberOfDimensions = randomDimensions;
+  dimensionKey = randomKey;
+
+  // render the drone
+  Promise.all(requests).then(function(results) {
+    console.log(results);
+    renderDroneObject(randomDroneState);
+
+  });
+
+}
+
 hookUpMergerNodes();
 initializeGlobals();
 
@@ -732,6 +1260,16 @@ $(document).ready(function(){
       currentNodeObject.hertz = currentNodeObject.hertz / getKeyValue(pitchSpace);
       currentNodeObject.osc.frequency.value = currentNodeObject.hertz;
       updateEditorPane(currentNodeObject);
+
+    });
+
+    $('#randomDroneJust').on('click', function() {
+      generateRandomDrone('just');
+
+    });
+
+    $('#randomDroneHybrid').on('click', function() {
+      generateRandomDrone('hybrid');
 
     });
 
