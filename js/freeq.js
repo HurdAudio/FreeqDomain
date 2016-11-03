@@ -772,25 +772,25 @@ function setRandomGlobalsPart1 (getString) {
           randomActiveNodes = (data.data[7] % 64) + 1;
 
       },
-      error: function(e) {
+      error: function(xhr,status, strErr) {
           var backupArray = [];
           var randomPSpace = {};
           var pitchClassNumber = 0;
           var pitchClassString = '';
           var displacement = 0;
-
-          console.log(e);
+          console.log('status: ', status);
+          console.log('strErr: ', strErr);
 
           console.log('Query failed!');
           // alert('API FAILURE');
-          backupArray[0] = Math.floor((Math.random() * 256) + 1);
-          backupArray[1] = Math.floor((Math.random() * 256) + 1);
-          backupArray[2] = Math.floor((Math.random() * 256) + 1);
-          backupArray[3] = Math.floor((Math.random() * 256) + 1);
-          backupArray[4] = Math.floor(Math.random() * 12);
-          backupArray[5] = Math.floor((Math.random() * 4) - 2);
-          backupArray[6] = Math.floor((Math.random() * 8) + 1);
-          backupArray[7] = Math.floor((Math.random() * 64) + 1);
+          backupArray[0] = Math.round((Math.random() * 256) + 1);
+          backupArray[1] = Math.round((Math.random() * 256) + 1);
+          backupArray[2] = Math.round((Math.random() * 256) + 1);
+          backupArray[3] = Math.round((Math.random() * 256) + 1);
+          backupArray[4] = Math.round(Math.random() * 12);
+          backupArray[5] = Math.round((Math.random() * 3) - 2);
+          backupArray[6] = Math.round((Math.random() * 8) + 1);
+          backupArray[7] = Math.round((Math.random() * 64) + 1);
 
 
           if (backupArray[0] > backupArray[1]) {
@@ -905,12 +905,13 @@ function setRandomGlobalsPart2 (getString, intonation) {
           }
         }
       },
-      error: function(e) {
+      error: function(xhr,status, strErr) {
+        alert('We <Are></Are>')
         var backupArray = [];
         var randomKey = [];
         var index2 = 0;
         console.log('Query failed!');
-        console.log(e);
+        console.log(strErr);
         if (intonation === 'hybrid') {
           for (let i = 0; i < (numberOfDimensions * 4); i++) {
             backupArray[i] = (Math.floor(Math.random() * 13) + 1);
@@ -989,10 +990,10 @@ function setRandomGlobalsPart3 (getString) {
           ++index;
         }
       },
-    error: function(e) {
+    error: function(xhr,status, strErr) {
       var backupArray = [];
       console.log('Query failed!');
-      console.log(e);
+      console.log(strErr);
       // alert('API FAILURE');
       for (let i = 0; i < (randomDroneState.length * 4); i+4) {
         backupArray[i] = Math.random();
@@ -1256,11 +1257,17 @@ function generateRandomDrone (intonationString) {
 
 
         renderDroneObject(randomDroneState);
+      })
+      .catch(function(err) {
+        console.log(err);
       });
     })
     .catch(function (err) {
       console.log(err);
     });
+  })
+  .catch(function (err) {
+    console.log(err);
   });
 }
 
