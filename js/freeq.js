@@ -656,6 +656,8 @@ function arrayToString (arr) {
   return (returnString);
 }
 
+
+
 function addNewNode (siblingNode, pendStateString) {
   // function to dynamically add a new node with coordinate values calculated. alt is set to "node".
 
@@ -698,6 +700,7 @@ function setRandomGlobalsPart1 (getString) {
       var pitchClassString = '';
       var displacement = 0;
       console.log(data);
+
 
 
 
@@ -787,7 +790,7 @@ function setRandomGlobalsPart1 (getString) {
           backupArray[1] = Math.round((Math.random() * 256) + 1);
           backupArray[2] = Math.round((Math.random() * 256) + 1);
           backupArray[3] = Math.round((Math.random() * 256) + 1);
-          backupArray[4] = Math.round(Math.random() * 12);
+          backupArray[4] = Math.floor(Math.random() * 12);
           backupArray[5] = Math.round((Math.random() * 3) - 2);
           backupArray[6] = Math.round((Math.random() * 8) + 1);
           backupArray[7] = Math.round((Math.random() * 64) + 1);
@@ -906,7 +909,7 @@ function setRandomGlobalsPart2 (getString, intonation) {
         }
       },
       error: function(xhr,status, strErr) {
-        alert('We <Are></Are>')
+        // alert('We <Are></Are>')
         var backupArray = [];
         var randomKey = [];
         var index2 = 0;
@@ -1387,6 +1390,8 @@ $(document).ready(function(){
         }
 
       } while ((grabDiv.attr("id")) !== (lastDiv.attr("id")));
+
+
     });
 
     $('#nodeCanvas').on('click', function(event) {
