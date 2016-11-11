@@ -1,9 +1,9 @@
 # FreeqDomain
 A web audio api realization of lattice harmonic space
 
-Project proposal for: Freeq Domain - an Additive Synthesis Application
+Freeq Domain - an Additive Synthesis Application
 
-Devin Hurd
+Devin Hurd - HurdAudio
 
 
 What problem does this application solve? 
@@ -46,85 +46,4 @@ https://wireframe.cc/a9m6ou
 https://wireframe.cc/As39hk
 
 
-Example drone state array of objects and a key (this is what would be stored in Internal Storage and translated into a sounding state):
-
-Key {
-“intervalOfEquivalence”: [ num, denom, exponentNum, exponentDenum]
-“numberDimensions”: 2
-“axisIds”: [ [num, denim, exponentNum, exponentDenum], [num, denim, exponentNum, exponentDenum] ]
-“masterVolume”: -10
-}
-
-Drone [
-{
-“coordinatePoints”: [0, 1]
-“intervallicEquivalenceDisplacement”: 0
-“volume”: -45
-“waveform”: “sine”
-“pan”: 64
-“LFOassignments”: [ true, false, false, false, false, false]
-}, 
-{
-“coordinatePoints”: [2,0]
-“intervallicEquivalenceDisplacement”: 1
-“volume”: -30
-“waveform”: “square”
-“pan”: 33
-“LFOassignments”: [false, false, false, true, false, true]
-}, 
-{
-“coordinatePoints”: [0,0]
-“intervallicEquivalenceDisplacement”: -2
-“volume”: -44
-“waveform”: “sine”
-“pan”: 0
-“LFOassignments”: [true, true, true, true, false, true]
-}
-]
-
-LFO [
-{
-“coordinatePoints”: [0,0]
-“intervallic EquivalenceDisplacement”: -6
-“volume”: -20
-“waveform”: “sawtooth”
-}
-{
-“coordinatePoints”: [0,0]
-“intervallic EquivalenceDisplacement”: -6
-“volume”: -20
-“waveform”: “sawtooth”
-}
-{
-“coordinatePoints”: [0,0]
-“intervallic EquivalenceDisplacement”: -6
-“volume”: -20
-“waveform”: “sawtooth”
-}
-{
-“coordinatePoints”: [0,0]
-“intervallic EquivalenceDisplacement”: -6
-“volume”: -20
-“waveform”: “sawtooth”
-}
-{
-“coordinatePoints”: [0,0]
-“intervallic EquivalenceDisplacement”: -6
-“volume”: -20
-“waveform”: “sawtooth”
-}
-{
-“coordinatePoints”: [0,0]
-“intervallic EquivalenceDisplacement”: -6
-“volume”: -20
-“waveform”: “sawtooth”
-}
-]		
-
-Jquery would be needed to dynamically generate the nodes as the user placed them and allow them to expand and contract the size of each node relative to its volume. It would also be used to visually update the parameter values as edited.
-
-http://api.wunderground.com/api/5dc741b0cecba010/conditions/q/CA/Berlin.json
-
-Additional API use: using realtime data from weather underground API to generate synthesized drones. Creatively mapping temperature data to lattice-space parameters.
-
-Another API use: numbers.api for supplyng facts about numbers as the user edits their objects.
+FreeqDomain makes use of the ANU Quantum Number Generator API for randomizing global variables as well as number of drones along multiple dimensions for realizing randomized harmonic drones.

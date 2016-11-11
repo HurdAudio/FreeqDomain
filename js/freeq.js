@@ -700,12 +700,6 @@ function setRandomGlobalsPart1 (getString) {
       var pitchClassString = '';
       var displacement = 0;
       console.log(data);
-
-
-
-
-
-
         if ((data.data[0] +1) > (data.data[1] + 1)) {
           randomPSpace.numerator = (data.data[0] + 1);
           randomPSpace.denominator = (data.data[1] + 1);
